@@ -7,17 +7,17 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="White">
-        <ComboBox HorizontalAlignment="Left" Margin="10,123,0,0" VerticalAlignment="Top" Width="149" BorderBrush="#FFACACAC" Background="#FF464646" Height="23">
+        <ComboBox HorizontalAlignment="Left" Margin="10,322,0,0" VerticalAlignment="Top" Width="149" BorderBrush="#FFACACAC" Background="#FF464646" Height="23">
             <TextBlock>Средняя за месяц</TextBlock>
             <TextBlock>Максимальная за месяц</TextBlock>
         </ComboBox>
-        <TextBox x:Name="Search" HorizontalAlignment="Left" Height="23" Margin="188,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="382" FontSize="16"/>
-        <CheckBox Content="Показать уволенных" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,60,0,0" Height="22" Width="149"/>
-        <Label Content="Поиск сотрудника:" HorizontalAlignment="Left" Margin="74,10,0,0" VerticalAlignment="Top"/>
-        <Button Content="Найти" HorizontalAlignment="Left" Margin="647,10,0,0" VerticalAlignment="Top" Width="100" Height="23" Click="StartSearch"/>
-        <Label Content="Выберите фильтр зарплат:" HorizontalAlignment="Left" Margin="10,97,0,0" VerticalAlignment="Top" Width="170"/>
-        <Button Content="Показать" HorizontalAlignment="Left" Margin="48,169,0,0" VerticalAlignment="Top" Width="75" Click="ShowEmployees"/>
-        <ListView HorizontalAlignment="Left" Height="322" Margin="188,60,0,0" VerticalAlignment="Top" Width="560">
+        <TextBox x:Name="Search" HorizontalAlignment="Left" Height="23" Margin="307,10,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="323" FontSize="16"/>
+        <CheckBox Content="Показать уволенных" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,15,0,0" Height="22" Width="149"/>
+        <Label Content="Поиск сотрудника:" HorizontalAlignment="Left" Margin="188,10,0,0" VerticalAlignment="Top"/>
+        <Button Content="Найти" HorizontalAlignment="Left" Margin="648,10,0,0" VerticalAlignment="Top" Width="100" Height="23" Click="StartSearch"/>
+        <Label Content="Выберите фильтр зарплат:" HorizontalAlignment="Left" Margin="10,291,0,0" VerticalAlignment="Top" Width="170"/>
+        <Button Content="Показать" HorizontalAlignment="Left" Margin="47,363,0,0" VerticalAlignment="Top" Width="75" Click="ShowEmployees"/>
+        <ListView x:Name="EmployeeListView" HorizontalAlignment="Left" Height="322" Margin="188,60,0,0" VerticalAlignment="Top" Width="560">
             <ListView.View>
                 <GridView>
                     <GridViewColumn Width="400" DisplayMemberBinding="{Binding EmployeeName}">Сотрудник</GridViewColumn>

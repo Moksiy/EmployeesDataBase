@@ -52,23 +52,32 @@ namespace RSS
             SqlConnection connection = new SqlConnection();
 
             try
-            {
+            {                
+                connection.ConnectionString = ConnectionSrting;
+
                 //Открываем подключение
                 await connection.OpenAsync();
 
                 SqlCommand command = new SqlCommand();
 
-                //Получаем 
-                command.CommandText = "";//-----------------------------
+                //Запрос
+                command.CommandText = "SELECT dbo.Employees.EmployeeName, AVG(Salary), dbo.Employees.Active " +
+                                      "FROM dbo.Employees " +
+                                      "LEFT OUTER JOIN dbo.Salary ON dbo.Employees.EmployeeId = dbo.Salary.EmployeeId " +
+                                      "GROUP BY EmployeeName, Active " +
+                                      "ORDER BY AVG(Salary) DESC";
 
                 command.Connection = connection;
 
                 SqlDataReader dataReader = command.ExecuteReader();
 
-                //while (dataReader.Read())
-                //{ Runners.Items.Add($"{dataReader[0]} {dataReader[1]}"); }
-
-
+                while (dataReader.Read())
+                {
+                    string name = dataReader[0].ToString();
+                    double salary = dataReader[1] == DBNull.Value ? 0 : Convert.ToDouble(dataReader[1]);
+                    bool active = Convert.ToBoolean(dataReader[2]);
+                    EmployeeList.Add(new Data { EmployeeName = name, EmployeeSalary = salary, Active = active});
+                }
             }
             catch (SqlException ex)
             {
@@ -80,6 +89,20 @@ namespace RSS
                 //В любом случае закрываем подключение
                 connection.Close();
             }
+
+            //Очищаем listview
+            EmployeeListView.Items.Clear();
+
+            //Выводим в listview элементы списка
+            foreach(var item in EmployeeList)
+            {
+                ListViewItem listItem = new ListViewItem();
+                listItem.Content = item;
+                //Подсвечиваем, если ЗП работника меньше 20000
+                if (item.EmployeeSalary < 20000)
+                    listItem.Background = Brushes.LightPink;
+                EmployeeListView.Items.Add(listItem);
+            }
         }
 
         /// <summary>
@@ -89,7 +112,10 @@ namespace RSS
         /// <param name="e"></param>
         private void StartSearch(object sender, RoutedEventArgs e)
         {
+            if(EmployeeList.Count > 0)
+            {
 
+            }
         }
     }
 }
