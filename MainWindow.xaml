@@ -20,9 +20,8 @@
         <ListView x:Name="EmployeeListView" HorizontalAlignment="Left" Height="322" Margin="188,60,0,0" VerticalAlignment="Top" Width="560">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn Width="250" DisplayMemberBinding="{Binding Path=EmployeeName}">Сотрудник</GridViewColumn>
+                    <GridViewColumn Width="400" DisplayMemberBinding="{Binding Path=EmployeeName}">Сотрудник</GridViewColumn>
                     <GridViewColumn Width="160" DisplayMemberBinding="{Binding Path=EmployeeSalary}">Зарплата</GridViewColumn>
-                    <GridViewColumn Width="150" DisplayMemberBinding="{Binding Path=SalaryDate}">Дата</GridViewColumn>
                 </GridView>
             </ListView.View>
         </ListView>

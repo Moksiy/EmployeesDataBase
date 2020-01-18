@@ -22,7 +22,6 @@ namespace RSS
         public string EmployeeName { get; set; }
         public double EmployeeSalary { get; set; }
         public bool Active { get; set; }
-        public string SalaryDate { get; set; }
     }
 
     /// <summary>
@@ -66,11 +65,11 @@ namespace RSS
 
                 //Запрос
                 command.CommandText = "SELECT dbo.Employees.EmployeeName, " + $"{(SelectedFilter.SelectedValue == MAXFilter ? "MAX" : "AVG")}" +
-                                      "(ISNULL(Salary,0)), dbo.Employees.Active, ISNULL(SalaryDate,'01-01-9999') " +
+                                      "(ISNULL(Salary,0)), dbo.Employees.Active " +
                                       "FROM dbo.Employees LEFT OUTER JOIN dbo.Salary ON dbo.Employees.EmployeeId = dbo.Salary.EmployeeId " +
                                       $"{(ShowDismissed.IsChecked != true ? "WHERE Active = 1 " : " ")}" +
-                                      "GROUP BY EmployeeName, Active, SalaryDate " +
-                                      "ORDER BY ISNULL(SalaryDate,'01-01-9999'), " + $"{(SelectedFilter.SelectedValue == MAXFilter ? "MAX" : "AVG")}" +
+                                      "GROUP BY MONTH(SalaryDate), EmployeeName, Active " +
+                                      "ORDER BY  " + $"{(SelectedFilter.SelectedValue == MAXFilter ? "MAX" : "AVG")}" +
                                       "(ISNULL(Salary,0)) DESC";
 
                 command.Connection = connection;
@@ -85,14 +84,11 @@ namespace RSS
 
                 while (dataReader.Read())
                 {
-                    DateTime date = Convert.ToDateTime(dataReader[3]);
-                    string salaryDate = Convert.ToDouble(dataReader[1]) == 0 ? "-" : date.ToString("dd.MM.yyyy");
                     EmployeeList.Add(new Data
                     {
                         EmployeeName = dataReader[0].ToString(),
                         EmployeeSalary = Convert.ToDouble(dataReader[1]),
-                        Active = Convert.ToBoolean(dataReader[2]),                        
-                        SalaryDate = salaryDate
+                        Active = Convert.ToBoolean(dataReader[2])
                     });
                 }
             }
