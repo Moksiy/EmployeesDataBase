@@ -22,6 +22,7 @@ namespace RSS
         public string EmployeeName { get; set; }
         public double EmployeeSalary { get; set; }
         public bool Active { get; set; }
+        public string SalaryDate { get; set; }
     }
 
     /// <summary>
@@ -39,6 +40,9 @@ namespace RSS
         public MainWindow()
         {
             InitializeComponent();
+
+            //Выставляем значение по умолчанию для ComboBox'а
+            SelectedFilter.SelectedValue = AVGFilter;
         }
 
         /// <summary>
@@ -52,7 +56,7 @@ namespace RSS
             SqlConnection connection = new SqlConnection();
 
             try
-            {                
+            {
                 connection.ConnectionString = ConnectionSrting;
 
                 //Открываем подключение
@@ -61,22 +65,35 @@ namespace RSS
                 SqlCommand command = new SqlCommand();
 
                 //Запрос
-                command.CommandText = "SELECT dbo.Employees.EmployeeName, AVG(Salary), dbo.Employees.Active " +
-                                      "FROM dbo.Employees " +
-                                      "LEFT OUTER JOIN dbo.Salary ON dbo.Employees.EmployeeId = dbo.Salary.EmployeeId " +
-                                      "GROUP BY EmployeeName, Active " +
-                                      "ORDER BY AVG(Salary) DESC";
+                command.CommandText = "SELECT dbo.Employees.EmployeeName, " + $"{(SelectedFilter.SelectedValue == MAXFilter ? "MAX" : "AVG")}" +
+                                      "(ISNULL(Salary,0)), dbo.Employees.Active, ISNULL(SalaryDate,'01-01-9999') " +
+                                      "FROM dbo.Employees LEFT OUTER JOIN dbo.Salary ON dbo.Employees.EmployeeId = dbo.Salary.EmployeeId " +
+                                      $"{(ShowDismissed.IsChecked != true ? "WHERE Active = 1 " : " ")}" +
+                                      "GROUP BY EmployeeName, Active, SalaryDate " +
+                                      "ORDER BY ISNULL(SalaryDate,'01-01-9999'), " + $"{(SelectedFilter.SelectedValue == MAXFilter ? "MAX" : "AVG")}" +
+                                      "(ISNULL(Salary,0)) DESC";
 
                 command.Connection = connection;
 
                 SqlDataReader dataReader = command.ExecuteReader();
 
+                //Очищаем список
+                EmployeeList.Clear();
+
+                //Чистим строку поиска
+                Search.Text = "";
+
                 while (dataReader.Read())
                 {
-                    string name = dataReader[0].ToString();
-                    double salary = dataReader[1] == DBNull.Value ? 0 : Convert.ToDouble(dataReader[1]);
-                    bool active = Convert.ToBoolean(dataReader[2]);
-                    EmployeeList.Add(new Data { EmployeeName = name, EmployeeSalary = salary, Active = active});
+                    DateTime date = Convert.ToDateTime(dataReader[3]);
+                    string salaryDate = Convert.ToDouble(dataReader[1]) == 0 ? "-" : date.ToString("dd.MM.yyyy");
+                    EmployeeList.Add(new Data
+                    {
+                        EmployeeName = dataReader[0].ToString(),
+                        EmployeeSalary = Convert.ToDouble(dataReader[1]),
+                        Active = Convert.ToBoolean(dataReader[2]),                        
+                        SalaryDate = salaryDate
+                    });
                 }
             }
             catch (SqlException ex)
@@ -94,13 +111,19 @@ namespace RSS
             EmployeeListView.Items.Clear();
 
             //Выводим в listview элементы списка
-            foreach(var item in EmployeeList)
+            foreach (var item in EmployeeList)
             {
                 ListViewItem listItem = new ListViewItem();
                 listItem.Content = item;
+
                 //Подсвечиваем, если ЗП работника меньше 20000
                 if (item.EmployeeSalary < 20000)
-                    listItem.Background = Brushes.LightPink;
+                    listItem.Background = Brushes.LightYellow;
+
+                //Уволенных работников выводим красным шрифтом
+                if (item.Active == false)
+                    listItem.Foreground = Brushes.Red;
+
                 EmployeeListView.Items.Add(listItem);
             }
         }
@@ -112,9 +135,31 @@ namespace RSS
         /// <param name="e"></param>
         private void StartSearch(object sender, RoutedEventArgs e)
         {
-            if(EmployeeList.Count > 0)
+            if (EmployeeList.Count > 0)
             {
+                //Очищаем ListView
+                EmployeeListView.Items.Clear();
 
+                //Поиск по списку
+                foreach (var item in EmployeeList)
+                {
+                    if (item.EmployeeName.Contains(Search.Text))
+                    {
+                        ListViewItem listItem = new ListViewItem();
+
+                        listItem.Content = item;
+
+                        //Подсвечиваем, если ЗП работника меньше 20000
+                        if (item.EmployeeSalary < 20000)
+                            listItem.Background = Brushes.LightYellow;
+
+                        //Уволенных работников выводим красным шрифтом
+                        if (item.Active == false)
+                            listItem.Foreground = Brushes.Red;
+
+                        EmployeeListView.Items.Add(listItem);
+                    }
+                }
             }
         }
     }
